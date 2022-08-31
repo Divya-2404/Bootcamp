@@ -7,37 +7,12 @@ app.use(express.urlencoded({extended:true}))
 const morgan=require('morgan')
 app.use(morgan('dev'));
 
-
+var bcrypt = require('bcryptjs');
 //bcryption
 
-var bcrypt = require('bcryptjs');
 
-var salt = bcrypt.genSaltSync(10);
-var pswrd="asntekdebv"
-var hash = bcrypt.hashSync(pswrd, salt);  //string should be password to be bcrypted
-var enpassword=hash
-console.log(enpassword)
 
-if (enpassword==null){
-    console.log("error")
-}
-bcrypt.compare(pswrd,enpassword, async function (err, isMatch) {
-  
-    // Comparing the original password to
-    // encrypted password   
-    if (isMatch) {
-        console.log('Encrypted password is: ', pswrd);
-        console.log('Decrypted password is: ', enpassword);
-    }
 
-    if (!isMatch) {
-      
-        // If password doesn't match the following
-        // message will be sent
-        console.log(enpassword + ' is not encryption of ' 
-        + password);
-    }
-})
 
 
 //joi validation
@@ -88,6 +63,35 @@ app.post('/users',(req,res)=>{
     const use=req.body
 const results=schema.validate(data);
 console.log(results)
+
+//bcryption
+const pswrd=data.password
+var salt = bcrypt.genSaltSync(10);
+
+var hash = bcrypt.hashSync(pswrd, salt);  //string should be password to be bcrypted
+var enpassword=hash
+console.log(enpassword)
+
+if (enpassword==null){
+    console.log("error")
+}
+bcrypt.compare(pswrd,enpassword, async function (err, isMatch) {
+  
+    // Comparing the original password to
+    // encrypted password   
+    if (isMatch) {
+        console.log('Encrypted password is: ', pswrd);
+        console.log('Decrypted password is: ', enpassword);
+    }
+
+    if (!isMatch) {
+      
+        // If password doesn't match the following
+        // message will be sent
+        console.log(enpassword + ' is not encryption of ' 
+        + password);
+    }
+})
 if(results.error==null){
     let sign=`insert into signup(email,username,password,birthyear,phonenumber,enpassword) values ('${data.email}','${data.username}','${data.password}','${data.birthyear}','${data.phonenumber}','${use.enpassword}')`
     db.query(sign,(err,result)=>{
